@@ -62,6 +62,10 @@ func main() {
 		gitPushTags(),
 	)
 
+	runCommands(cmds)
+}
+
+func runCommands(cmds []*exec.Cmd) {
 	for _, cmd := range cmds {
 		if *dryRun {
 			err := outputCommand(cmd)
