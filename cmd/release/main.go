@@ -82,14 +82,6 @@ func main() {
 	}
 }
 
-func gitPushTags() *exec.Cmd {
-	return exec.Command("git", "push", "--tags")
-}
-
-func gitAdd(filename string) *exec.Cmd {
-	return exec.Command("git", "add", filename)
-}
-
 func createNewVersionInChangelog(filename string, version semver.Version, date string) error {
 	body, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -156,6 +148,14 @@ func execCommand(cmd *exec.Cmd) error {
 func outputCommand(cmd *exec.Cmd) error {
 	_, err := fmt.Printf("Running command: %s %s\n", cmd.Path, strings.Join(cmd.Args, " "))
 	return err
+}
+
+func gitPushTags() *exec.Cmd {
+	return exec.Command("git", "push", "--tags")
+}
+
+func gitAdd(filename string) *exec.Cmd {
+	return exec.Command("git", "add", filename)
 }
 
 func gitCommit(version semver.Version) *exec.Cmd {
