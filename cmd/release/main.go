@@ -146,7 +146,7 @@ func execCommand(cmd *exec.Cmd) error {
 }
 
 func outputCommand(cmd *exec.Cmd) error {
-	_, err := fmt.Printf("Running command: %s %s\n", cmd.Path, strings.Join(cmd.Args, " "))
+	_, err := fmt.Printf("Running command: %s\n", strings.Join(cmd.Args, " "))
 	return err
 }
 
