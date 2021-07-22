@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"sort"
 	"strings"
 	"time"
 
@@ -23,9 +24,14 @@ var shouldMajor = flag.Bool("major", false, "increment major")
 func main() {
 	flag.Parse()
 
-	latest, err := latestVersion()
+	versions, err := currentVersions()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("currentVersions: %s", err)
+	}
+
+	latest, err := latestVersion(versions)
+	if err != nil {
+		log.Fatalf("latestVersion: %s", err)
 	}
 
 	nextVersion := latest
@@ -174,7 +180,7 @@ func gitPush() *exec.Cmd {
 	return exec.Command("git", "push")
 }
 
-func latestVersion() (semver.Version, error) {
+func currentVersions() ([]semver.Version, error) {
 	var buf bytes.Buffer
 
 	cmd := exec.Command("git", "tag", "-l")
@@ -182,20 +188,36 @@ func latestVersion() (semver.Version, error) {
 
 	err := cmd.Run()
 	if err != nil {
-		return semver.Version{}, err
+		return nil, err
 	}
 
 	scanner := bufio.NewScanner(&buf)
 	scanner.Split(bufio.ScanLines)
 
-	latest, _ := semver.Make("0.0.0")
+	var versions []semver.Version
 
 	for scanner.Scan() {
 		current, err := semver.Make(scanner.Text())
 		if err != nil {
-			log.Println(err)
+			log.Printf("Parse failed of %s", scanner.Text())
 			continue
 		}
+
+		versions = append(versions, current)
+	}
+
+	sort.Slice(versions, func(i, j int) bool {
+		return versions[j].LT(versions[i])
+	})
+
+	return versions, nil
+}
+
+// latestVersion returns the maximum version from versions
+func latestVersion(versions []semver.Version) (semver.Version, error) {
+	latest, _ := semver.Make("0.0.0")
+
+	for _, current := range versions {
 		if current.GT(latest) {
 			latest = current
 		}
