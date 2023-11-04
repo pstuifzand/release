@@ -109,7 +109,7 @@ func gitAdd(filename string) *exec.Cmd {
 }
 
 func gitCommit(version semver.Version) *exec.Cmd {
-	return exec.Command("git", "commit", "-m", fmt.Sprintf("Increase version to %s", version))
+	return exec.Command("git", "commit", "-n", "-m", fmt.Sprintf("Increase version to %s", version))
 }
 
 func gitTag(version semver.Version) *exec.Cmd {
