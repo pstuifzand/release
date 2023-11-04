@@ -5,15 +5,15 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
 	"os/exec"
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/blang/semver"
+
+	"github.com/pstuifzand/release/pkg/changelog"
 )
 
 var dryRun = flag.Bool("dry-run", false, "dry run")
@@ -52,7 +52,7 @@ func main() {
 	if *dryRun {
 		fmt.Printf("Update changelog\n")
 	} else {
-		err = createNewVersionInChangelog("CHANGELOG.md", nextVersion, time.Now().In(time.Local).Format("2006-01-02"))
+		err = changelog.AddNewVersion("CHANGELOG.md", latest, nextVersion, time.Now().In(time.Local).Format("2006-01-02"))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -83,72 +83,12 @@ func runCommands(cmds []*exec.Cmd) {
 			if err != nil {
 				log.Fatal(err)
 			}
-
 			err = execCommand(cmd)
 			if err != nil {
 				log.Fatal(err)
 			}
 		}
 	}
-}
-
-func createNewVersionInChangelog(filename string, version semver.Version, date string) error {
-	body, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return err
-	}
-
-	const HeaderUnreleased = "## [Unreleased]"
-
-	unreleasedStart := bytes.Index(body, []byte(HeaderUnreleased))
-	if unreleasedStart < 0 {
-		return fmt.Errorf("unreleased level 2 header not found")
-	}
-
-	prefix := body[0 : unreleasedStart+len(HeaderUnreleased)]
-	suffix := body[unreleasedStart+len(HeaderUnreleased):]
-
-	f, err := ioutil.TempFile(".", "release-changelog")
-	if err != nil {
-		return err
-	}
-	_, err = f.Write(prefix)
-	if err != nil {
-		f.Close()
-		return err
-	}
-	_, err = f.WriteString("\n\n## [")
-	if err != nil {
-		f.Close()
-		return err
-	}
-	_, err = f.WriteString(version.String())
-	if err != nil {
-		f.Close()
-		return err
-	}
-	_, err = f.WriteString("] - ")
-	if err != nil {
-		f.Close()
-		return err
-	}
-	_, err = f.WriteString(date)
-	if err != nil {
-		f.Close()
-		return err
-	}
-	_, err = f.Write(suffix)
-	if err != nil {
-		f.Close()
-		return err
-	}
-	err = f.Close()
-	if err != nil {
-		return err
-	}
-
-	err = os.Rename(f.Name(), filename)
-	return err
 }
 
 func execCommand(cmd *exec.Cmd) error {
