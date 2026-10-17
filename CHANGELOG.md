@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-10-17
+
 ### Changed
 
 - Skip Drone's redundant master build for version-only release commits.
@@ -49,4 +51,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The basics
 
-[Unreleased]: https://github.com/pstuifzand/release/compare/0.2.5...HEAD
+[Unreleased]: https://github.com/pstuifzand/release/compare/0.2.6...HEAD
+[0.2.6]: https://github.com/pstuifzand/release/compare/0.2.5...0.2.6
